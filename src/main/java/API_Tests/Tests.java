@@ -2,25 +2,26 @@ package API_Tests;
 
 import java.util.ArrayList;
 
-import io.restassured.response.Response;
+import data_objects.RegisterTestData;
 
 public class Tests {
 
 	public static void main(String[] args) {
-		
-		String token = BoraServices.login("murad@test.com", "murad001");
-		
-		if (token.isEmpty()) {
-			System.out.println("Token not available");
-		} else {
-			Response userProfile = BoraServices.getCurrentUserProfile(token);
-			ArrayList<String> skills = userProfile.jsonPath().get("skills");
-			for (String skill : skills) {
-				System.out.println(skill);
-			}
-			
+
+		ArrayList<RegisterTestData> testData = new ArrayList<RegisterTestData>();
+		testData.add(new RegisterTestData("murad@test.com", "Murad Test", "murad001", 400));
+		testData.add(new RegisterTestData("", "Murad Test", "murad001", 400));
+		testData.add(new RegisterTestData("", "", "murad001", 400));
+		testData.add(new RegisterTestData("", "", "", 400));
+		testData.add(new RegisterTestData("murad3@test.com", "Murad3 Test", "murad001", 200));
+
+		int testCaseId = 1;
+		for (RegisterTestData td : testData) {
+			System.out.println("Test Case - " + testCaseId++ + ":");
+			BoraServices.register_test(td.email, td.name, td.password, td.expectedStatusCode);
+			System.out.println();
 		}
-		
+
 	}
 
 }
