@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import data_objects.RegisterTestData;
 
-public class Tests {
+public class RegisterTests {
 
 	public static void main(String[] args) {
 
