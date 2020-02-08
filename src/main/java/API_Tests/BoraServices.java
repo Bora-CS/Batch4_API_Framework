@@ -1,5 +1,7 @@
 package API_Tests;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.simple.JSONObject;
@@ -37,15 +39,50 @@ public class BoraServices {
 		return response;
 	}
 
-	public static void addEducation_test(Education education, String token, int expectedStatusCode) {
+	public static void addEducation_test(Education education, String token, int expectedStatusCode,
+			String[] expectedErrors) {
 		Response response = addEducation(education, token);
-		int actualStatusCode = response.getStatusCode();
-		if (actualStatusCode == expectedStatusCode) {
+		validation(expectedStatusCode, expectedErrors, response);
+	}
+	
+	public static void addExperience_test(Experience experience, String token, int expectedStatusCode,
+			String[] expectedErrors) {
+		Response response = addExperience(experience, token);
+		validation(expectedStatusCode, expectedErrors, response);
+	}
+
+	private static void validation(int expectedStatusCode, String[] expectedErrors, Response response) {
+		try {
+			int actualStatusCode = response.getStatusCode();
+			if (actualStatusCode != expectedStatusCode) {
+				String errorMessage = "Expected Status Code:\t" + expectedStatusCode + "\n" + "Actual Status Code:\t"
+						+ actualStatusCode;
+				throw new Exception(errorMessage);
+			}
+			JsonPath jp = response.jsonPath();
+			if (expectedErrors.length == 0) {
+				if (response.getBody().asString().contains("errors")) {
+					throw new Exception("No errors were expected, but found errors.");
+				}
+			} else {
+				List<Error> actualErrors = jp.getList("errors", Error.class);
+				List<String> expectedErrorMsg = Arrays.asList(expectedErrors);
+				
+				if (actualErrors.size() != expectedErrorMsg.size()) {
+					String errorMessage = "Expected " + expectedErrorMsg.size() + " errors, but axctually received " + actualErrors.size() + " errors"; 
+					throw new Exception(errorMessage);
+				}
+
+				for (Error actualError : actualErrors) {
+					if (!expectedErrorMsg.contains(actualError.msg)) {
+						throw new Exception("Error recevied is not expected: " + actualError.msg);
+					}
+				}
+			}
 			System.out.println("Test Passed!");
-		} else {
+		} catch (Exception e) {
 			System.out.println("Test Failed:");
-			System.out.println("Expected Status Code:\t" + expectedStatusCode);
-			System.out.println("Actual Status Code:\t" + actualStatusCode);
+			System.out.println(e.getMessage());
 		}
 	}
 
