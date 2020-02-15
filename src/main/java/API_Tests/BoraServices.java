@@ -1,6 +1,5 @@
 package API_Tests;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import org.json.simple.JSONObject;
 import data_objects.Education;
 import data_objects.Error;
 import data_objects.Experience;
+import data_objects.Post;
 import API_Resource.Constants;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -16,6 +16,31 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 public class BoraServices {
+	
+	public static List<Post> getAllPosts (String token) {
+		String endpoint = "/api/posts";
+		RestAssured.baseURI = Constants.APPLICATION_URI;
+		RequestSpecification request = RestAssured.given();
+		request.header("x-auth-token", token);
+		Response response = request.get(endpoint);
+		JsonPath jp = response.jsonPath();
+		
+		List<Post> posts = jp.getList("", Post.class);
+		return posts;
+	}
+	
+	public static void printAllPosts (List<Post> posts) {
+		System.out.println("All Posts: ");
+		int number = 1;
+		for (Post post : posts) {
+			System.out.println("Post No."+ number++);
+			System.out.println("Posted by: " + post.name);
+			System.out.println("Post Content: " + post.text.replace("\n", ""));
+			System.out.println("Number of Likes: " + post.likes.size());
+			System.out.println("Number of Comments: " + post.comments.size());
+			System.out.println();		
+		}
+	}
 
 	public static Response addEducation(Education education, String token) {
 		String endPoint = "/api/profile/education";
